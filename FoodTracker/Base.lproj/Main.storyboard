@@ -16,7 +16,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="5gp-Fq-GeO">
-                                <rect key="frame" x="5" y="63.999999999999993" width="365" height="104.33333333333331"/>
+                                <rect key="frame" x="5" y="63.999999999999972" width="365" height="479.33333333333326"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Meal Name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5XV-95-b72">
                                         <rect key="frame" x="0.0" y="0.0" width="86.333333333333329" height="20.333333333333332"/>
@@ -36,9 +36,21 @@
                                             <action selector="setDefaultLabelText:" destination="BYZ-38-t0r" eventType="touchUpInside" id="HrP-Wa-FV9"/>
                                         </connections>
                                     </button>
+                                    <imageView clipsSubviews="YES" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" placeholderIntrinsicWidth="320" placeholderIntrinsicHeight="320" image="defaultPhoto" translatesAutoresizingMaskIntoConstraints="NO" id="ge6-A8-kj3">
+                                        <rect key="frame" x="0.0" y="114.33333333333337" width="365" height="365"/>
+                                        <gestureRecognizers/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" secondItem="ge6-A8-kj3" secondAttribute="height" multiplier="1:1" id="jmm-eE-tHd"/>
+                                        </constraints>
+                                        <connections>
+                                            <outletCollection property="gestureRecognizers" destination="JvN-9u-Y7B" appends="YES" id="Mxl-im-r0k"/>
+                                        </connections>
+                                    </imageView>
                                 </subviews>
                                 <constraints>
+                                    <constraint firstAttribute="trailing" secondItem="ge6-A8-kj3" secondAttribute="trailing" id="AK5-Bc-dfs"/>
                                     <constraint firstAttribute="trailing" secondItem="LS5-kr-9NA" secondAttribute="trailing" id="gbP-N4-ZYC"/>
+                                    <constraint firstItem="ge6-A8-kj3" firstAttribute="leading" secondItem="5gp-Fq-GeO" secondAttribute="leading" id="tMp-9z-J2p"/>
                                 </constraints>
                             </stackView>
                         </subviews>
@@ -53,11 +65,20 @@
                     <connections>
                         <outlet property="mealNameLabel" destination="5XV-95-b72" id="UBJ-fQ-Cdx"/>
                         <outlet property="nameTextField" destination="LS5-kr-9NA" id="UJP-1X-vqw"/>
+                        <outlet property="photoImageView" destination="ge6-A8-kj3" id="jD4-ur-09L"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+                <tapGestureRecognizer id="JvN-9u-Y7B">
+                    <connections>
+                        <action selector="selectImageFromLibrary:" destination="BYZ-38-t0r" id="Nqy-DB-T8d"/>
+                    </connections>
+                </tapGestureRecognizer>
             </objects>
             <point key="canvasLocation" x="138.40000000000001" y="138.98050974512745"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="defaultPhoto" width="320" height="320"/>
+    </resources>
 </document>
