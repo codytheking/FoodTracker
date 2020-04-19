@@ -1,0 +1,6 @@
+*.xcodeproj
+*.plist
+*.app
+*.xctest
+Assets.xcassets
+
