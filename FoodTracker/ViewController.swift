@@ -94,9 +94,6 @@ class ViewController: UIViewController, UITextFieldDelegate, UIImagePickerContro
         //Passing true to the animated parameter animates the presentation of the image picker controller.
         //The completion parameter refers to a completion handler, a piece of code that executes after this method completes. Because you don’t need to do anything else, you indicate that you don’t need to execute a completion handler by passing in nil.
         present(imagePickerController, animated: true, completion: nil)
-
-        
-
     }
 }
 

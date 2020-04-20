@@ -16,10 +16,10 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="5gp-Fq-GeO">
-                                <rect key="frame" x="5" y="63.999999999999972" width="365" height="479.33333333333326"/>
+                                <rect key="frame" x="5" y="64" width="365" height="533.33333333333337"/>
                                 <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Meal Name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5XV-95-b72">
-                                        <rect key="frame" x="0.0" y="0.0" width="86.333333333333329" height="20.333333333333332"/>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Meal Name" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5XV-95-b72">
+                                        <rect key="frame" x="0.0" y="0.0" width="365" height="20.333333333333332"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
@@ -46,9 +46,20 @@
                                             <outletCollection property="gestureRecognizers" destination="JvN-9u-Y7B" appends="YES" id="Mxl-im-r0k"/>
                                         </connections>
                                     </imageView>
+                                    <stackView opaque="NO" contentMode="scaleToFill" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="11R-hA-7W2" customClass="RatingControl" customModule="FoodTracker" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="489.33333333333337" width="240" height="44"/>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="starCount">
+                                                <integer key="value" value="5"/>
+                                            </userDefinedRuntimeAttribute>
+                                        </userDefinedRuntimeAttributes>
+                                    </stackView>
                                 </subviews>
                                 <constraints>
-                                    <constraint firstAttribute="trailing" secondItem="ge6-A8-kj3" secondAttribute="trailing" id="AK5-Bc-dfs"/>
+                                    <constraint firstItem="5XV-95-b72" firstAttribute="leading" secondItem="5gp-Fq-GeO" secondAttribute="leading" id="K3G-10-8nX"/>
+                                    <constraint firstAttribute="trailing" secondItem="ge6-A8-kj3" secondAttribute="trailing" id="L9V-ww-uqA"/>
+                                    <constraint firstItem="ge6-A8-kj3" firstAttribute="leading" secondItem="5gp-Fq-GeO" secondAttribute="leading" id="SkL-Y2-nTp"/>
+                                    <constraint firstAttribute="trailing" secondItem="5XV-95-b72" secondAttribute="trailing" id="c52-a7-iJ5"/>
                                     <constraint firstAttribute="trailing" secondItem="LS5-kr-9NA" secondAttribute="trailing" id="gbP-N4-ZYC"/>
                                     <constraint firstItem="ge6-A8-kj3" firstAttribute="leading" secondItem="5gp-Fq-GeO" secondAttribute="leading" id="tMp-9z-J2p"/>
                                 </constraints>
@@ -75,7 +86,7 @@
                     </connections>
                 </tapGestureRecognizer>
             </objects>
-            <point key="canvasLocation" x="138.40000000000001" y="138.98050974512745"/>
+            <point key="canvasLocation" x="138.40000000000001" y="138.91625615763547"/>
         </scene>
     </scenes>
     <resources>
