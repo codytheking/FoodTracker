@@ -39,7 +39,15 @@ class MealViewController: UIViewController, UITextFieldDelegate, UIImagePickerCo
         // Handle the text field’s user input through delegate callbacks.
         nameTextField.delegate = self  // self: this ViewController
         
-        // Enable the Save button only if the text field has a valid Meal name.
+        // Set up views if editing an existing Meal.
+        if let meal = meal {
+            navigationItem.title = meal.name
+            //nameTextField.text   = meal.name
+            photoImageView.image = meal.photo
+            ratingControl.rating = meal.rating
+        }
+        
+        // Enable the Save button only if the view (nav bar title) has a valid Meal name.
         updateSaveButtonState()
     }
 
@@ -54,9 +62,9 @@ class MealViewController: UIViewController, UITextFieldDelegate, UIImagePickerCo
     }
 
     func textFieldDidEndEditing(_ textField: UITextField) {
-        updateSaveButtonState()
         navigationItem.title = textField.text
         nameTextField.text = ""
+        updateSaveButtonState()
     }
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
@@ -101,7 +109,7 @@ class MealViewController: UIViewController, UITextFieldDelegate, UIImagePickerCo
             return
         }
         
-        let name = navigationItem.title ?? ""
+        let name = navigationItem.title ?? ""  // title should always have a value, but just in case. (Should probably do this differently).
         let photo = photoImageView.image
         let rating = ratingControl.rating
                 
@@ -114,7 +122,19 @@ class MealViewController: UIViewController, UITextFieldDelegate, UIImagePickerCo
     // MARK: Actions
     
     @IBAction func cancel(_ sender: UIBarButtonItem) {
-        dismiss(animated: true, completion: nil)
+        // Depending on style of presentation (modal for add meal or push presentation for edit meal), this view controller needs to be dismissed in two different ways.
+        
+        let isPresentingInAddMealMode = presentingViewController is UINavigationController  // nil if push (edit meal)
+        
+        if(isPresentingInAddMealMode) {
+            dismiss(animated: true, completion: nil)
+        }
+        else if let owningNavigationController = navigationController {
+            owningNavigationController.popViewController(animated: true)
+        }
+        else {
+            fatalError("The MealViewController is not inside a navigation controller.")
+        }
     }
     
     @IBAction func setDefaultLabelText(_ sender: UIButton) {
@@ -146,9 +166,13 @@ class MealViewController: UIViewController, UITextFieldDelegate, UIImagePickerCo
     // MARK: Private Methods
 
     private func updateSaveButtonState() {
-        // Disable the Save button if the text field is empty.
-        let text = nameTextField.text ?? ""
-        saveButton.isEnabled = !text.isEmpty
+        // Disable the Save button if the Meal hasn't been given a name.
+        //let textField = nameTextField.text ?? ""
+        if navigationItem.title == "New Meal" {
+            saveButton.isEnabled = false
+        }
+        else {
+            saveButton.isEnabled = true
+        }
     }
 }
-

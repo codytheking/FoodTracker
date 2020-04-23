@@ -28,8 +28,8 @@
                                             <rect key="frame" x="0.0" y="0.0" width="90" height="90"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         </imageView>
-                                        <stackView opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" fixedFrame="YES" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="aya-N6-YyS" customClass="RatingControl" customModule="FoodTracker" customModuleProvider="target">
-                                            <rect key="frame" x="98" y="40" width="252" height="44"/>
+                                        <stackView opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" fixedFrame="YES" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="aya-N6-YyS" customClass="RatingControl" customModule="FoodTracker" customModuleProvider="target">
+                                            <rect key="frame" x="98" y="40" width="253" height="44"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                             <userDefinedRuntimeAttributes>
                                                 <userDefinedRuntimeAttribute type="number" keyPath="starCount">
@@ -50,6 +50,7 @@
                                     <outlet property="nameLabel" destination="jPR-yn-62m" id="yi9-Kr-ggD"/>
                                     <outlet property="photoImageView" destination="2KF-70-8aU" id="o9Q-Oq-2mM"/>
                                     <outlet property="ratingControl" destination="aya-N6-YyS" id="z75-ed-LTO"/>
+                                    <segue destination="BYZ-38-t0r" kind="show" identifier="showDetail" id="h8S-pO-v4G"/>
                                 </connections>
                             </tableViewCell>
                         </prototypes>
@@ -57,7 +58,7 @@
                     <navigationItem key="navigationItem" title="Your Meals" id="Rwe-cd-mtE">
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="uH4-dd-nA6">
                             <connections>
-                                <segue destination="hFl-0X-vTd" kind="presentation" identifier="AddItem" id="W1W-Pe-ygR"/>
+                                <segue destination="hFl-0X-vTd" kind="presentation" identifier="addItem" id="W1W-Pe-ygR"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
@@ -71,11 +72,11 @@
             <objects>
                 <viewController id="BYZ-38-t0r" customClass="MealViewController" customModule="FoodTracker" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="758"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="5gp-Fq-GeO">
-                                <rect key="frame" x="5" y="76" width="365" height="533.33333333333337"/>
+                                <rect key="frame" x="5" y="108" width="365" height="533.33333333333337"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Meal Name" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5XV-95-b72">
                                         <rect key="frame" x="0.0" y="0.0" width="365" height="20.333333333333332"/>
@@ -84,7 +85,7 @@
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Enter meal name" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="LS5-kr-9NA">
-                                        <rect key="frame" x="0.0" y="30.333333333333329" width="365" height="34"/>
+                                        <rect key="frame" x="0.0" y="30.333333333333343" width="365" height="34"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                         <textInputTraits key="textInputTraits" returnKeyType="done" enablesReturnKeyAutomatically="YES"/>
                                     </textField>
@@ -198,9 +199,12 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Ne8-ya-1Gh" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1338.4000000000001" y="17.733990147783253"/>
+            <point key="canvasLocation" x="1417" y="-312"/>
         </scene>
     </scenes>
+    <inferredMetricsTieBreakers>
+        <segue reference="h8S-pO-v4G"/>
+    </inferredMetricsTieBreakers>
     <resources>
         <image name="defaultPhoto" width="320" height="320"/>
     </resources>
