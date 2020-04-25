@@ -202,9 +202,13 @@ class MealTableViewController: UITableViewController {
                 fatalError("The selected cell is not being displayed by the table")
             }
             
+            // Get Meal to display
             // Use section/row for table views, section/item for collection views, and direct subscripting for everything else.
             let selectedMeal = meals[indexPath.row]
-            //mealDetailViewController.meal = selectedMeal
+            let mealObj = Meal(selectedMeal.value(forKeyPath: "dish") as! String,
+                               UIImage(data: selectedMeal.value(forKey: "image") as! Data),
+                               selectedMeal.value(forKey: "stars") as! Int)
+            mealDetailViewController.meal = mealObj
             
         // Bad :(
         default:
@@ -224,6 +228,38 @@ class MealTableViewController: UITableViewController {
                 // Update an existing meal.
                 //editData(meal.name, meal.photo!, meal.rating)
                 //meals[selectedIndexPath.row] = meal
+                
+                
+                
+                let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "FoodItem")
+
+                do {
+                    let results = try managedContext?.fetch(fetchRequest)
+                    if results?.count != 0 { // At least one was returned
+
+                        // In my case, I only updated the first item in results
+                        results?[selectedIndexPath.row].setValue(meal.name, forKey: "dish")
+                        results?[selectedIndexPath.row].setValue(Meal.convertUIImageToPng(meal.photo), forKey: "image")
+                        results?[selectedIndexPath.row].setValue(meal.rating, forKey: "stars")
+                        
+                        meals[selectedIndexPath.row] = results![selectedIndexPath.row]
+                    }
+                } catch {
+                    print("Fetch Failed: \(error)")
+                }
+
+                do {
+                    try managedContext?.save()
+                   }
+                catch {
+                    print("Saving Core Data Failed: \(error)")
+                }
+                
+                
+                
+                
+                
+                
                 tableView.reloadRows(at: [selectedIndexPath], with: .none)
             }
                 // (New) Add button was pressed
