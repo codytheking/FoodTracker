@@ -7,13 +7,16 @@
 //
 
 import UIKit
+
+import CoreData
 import os.log
 
 class MealTableViewController: UITableViewController {
     
     // MARK: Properties
     
-    var meals = [Meal]()
+    var meals = [NSManagedObject]()
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -24,9 +27,39 @@ class MealTableViewController: UITableViewController {
         // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
         self.navigationItem.leftBarButtonItem = self.editButtonItem
         
+        
+        
+        
+        
         // Load sample data
-        loadSampleMeals()
+        //loadSampleMeals()
+        /*if let savedMeals = loadMeals() {
+         meals += savedMeals
+         }*/
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            return
+        }
+        
+        let managedContext = appDelegate.persistentContainer.viewContext
+        let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "FoodItem")
+        
+        do {
+            meals = try managedContext.fetch(fetchRequest)
+        } catch let error as NSError {
+            print("Could not fetch. \(error), \(error.userInfo)")
+        }
+    }
+    
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        // Dispose of any resources that can be recreated.
+    }
+    
     
     // MARK: - Table view data source
     
@@ -52,9 +85,13 @@ class MealTableViewController: UITableViewController {
         // Fetches the appropriate meal for the data source layout.
         let meal = meals[indexPath.row]
         
-        cell.nameLabel.text = meal.name
-        cell.photoImageView.image = meal.photo
-        cell.ratingControl.rating = meal.rating
+        cell.nameLabel?.text = meal.value(forKeyPath: "dish") as? String
+        let uiImg = UIImage(data: meal.value(forKeyPath: "image") as! Data)
+        cell.photoImageView?.image = uiImg
+        cell.ratingControl?.rating = meal.value(forKeyPath: "stars") as! Int
+        //        cell.nameLabel.text = meal.name
+        //        cell.photoImageView.image = meal.photo
+        //        cell.ratingControl.rating = meal.rating
         
         return cell
     }
@@ -69,9 +106,15 @@ class MealTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             meals.remove(at: indexPath.row)
-
+            
+            // SAVE THE MEALS
+            //saveMeals()
+            //saveData(<#T##name: String##String#>, <#T##photo: UIImage##UIImage#>, <#T##rating: Int##Int#>)
+            // remove from saved data
+            
             // Delete the row from the data source
             tableView.deleteRows(at: [indexPath], with: .fade)
+            
         }
         else if editingStyle == .insert {
             // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
@@ -132,7 +175,7 @@ class MealTableViewController: UITableViewController {
             
             // Use section/row for table views, section/item for collection views, and direct subscripting for everything else.
             let selectedMeal = meals[indexPath.row]
-            mealDetailViewController.meal = selectedMeal
+            //mealDetailViewController.meal = selectedMeal
             
         // Bad :(
         default:
@@ -147,43 +190,112 @@ class MealTableViewController: UITableViewController {
     @IBAction func unwindToMealList(sender: UIStoryboardSegue) {
         if let sourceViewController = sender.source as? MealViewController, let meal = sourceViewController.meal {
             
-            // Checks whether a row in the table view is selected (i.e. not the add button)
+            // (Edit) Checks whether a row in the table view is selected (i.e. not the add button)
             if let selectedIndexPath = tableView.indexPathForSelectedRow {
                 // Update an existing meal.
-                meals[selectedIndexPath.row] = meal
+                //meals[selectedIndexPath.row] = meal
                 tableView.reloadRows(at: [selectedIndexPath], with: .none)
             }
-            // Add button was pressed
+                // (New) Add button was pressed
             else {
                 // Add a new meal.
                 let newIndexPath = IndexPath(row: meals.count, section: 0)
-                meals.append(meal)
+                //meals.append(meal)
+                saveData(meal.name, meal.photo!, meal.rating)
                 tableView.insertRows(at: [newIndexPath], with: .automatic)
             }
+            
+            // Save the info
+            //saveData(meal.value(forKeyPath: "dish") as! String, meal.value(forKeyPath: "image") as! Data, meal.value(forKeyPath: "stars") as! Int)
+            
+            tableView.reloadData()
         }
     }
     
     
     // MARK: Private Methods
     
-    private func loadSampleMeals() {
+    // Save without specifying values
+    // Separate remove?
+
+    private func saveData(_ name: String, _ photo: UIImage, _ rating: Int) {
+        
+        // TODO
+        // Some of the code here, such as getting the managed object context and entity,
+        // could be done just once in your own init() or viewDidLoad() then reused later.
+        // TODO
+        // These should be declared above
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            return
+        }
+        
+        let managedContext = appDelegate.persistentContainer.viewContext
+        let entity = NSEntityDescription.entity(forEntityName: "FoodItem", in: managedContext)!
+        let meal = NSManagedObject(entity: entity, insertInto: managedContext)
+        meals.append(meal)
+        
+        // 3
+        meal.setValue(name, forKeyPath: "dish")
+        meal.setValue(Meal.convertUIImageToPng(photo), forKeyPath: "image")
+        meal.setValue(rating, forKeyPath: "stars")
+        
+        // 4
+        /*do {
+            try managedContext.save()
+            meals.append(meal)
+        } catch let error as NSError {
+            print("Could not save. \(error), \(error.userInfo)")
+        }*/
+    }
+    
+    /*private func loadSampleMeals() {
         let photo1 = UIImage(named: "meal1")
         let photo2 = UIImage(named: "meal2")
         let photo3 = UIImage(named: "meal3")
         
-        guard let meal1 = Meal(name: "Chicken Chow Mein", photo: photo1, rating: 5) else {
+        // TODO
+        // These should be declared above
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            return
+        }
+        
+        let managedContext = appDelegate.persistentContainer.viewContext
+        
+        let entity = NSEntityDescription.entity(forEntityName: "FoodItem", in: managedContext)!
+        
+        if let meal1 = Meal(name: "Chicken Chow Mein", photo: photo1, rating: 5) {
+            let meal = NSManagedObject(entity: entity, insertInto: managedContext)
+            meal.setValue(meal1.name, forKey: "dish")
+            meal.setValue(Meal.convertUIImageToPng(meal1.photo), forKey: "image")
+            meal.setValue(meal1.rating, forKey: "stars")
+            meals.append(meal)
+        }
+        else {
             fatalError("Unable to instantiate meal1.")
         }
         
-        guard let meal2 = Meal(name: "Rack of Lamb", photo: photo2, rating: 4) else {
+        if let meal2 = Meal(name: "Rack of Lamb", photo: photo2, rating: 4) {
+            let meal = NSManagedObject(entity: entity, insertInto: managedContext)
+            meal.setValue(meal2.name, forKey: "dish")
+            meal.setValue(Meal.convertUIImageToPng(meal2.photo), forKey: "image")
+            meal.setValue(meal2.rating, forKey: "stars")
+            meals.append(meal)
+        }
+        else {
             fatalError("Unable to instantiate meal2.")
         }
         
-        guard let meal3 = Meal(name: "Shrimp Tempura Roll", photo: photo3, rating: 5) else {
+        if let meal3 = Meal(name: "Shrimp Tempura Roll", photo: photo3, rating: 5) {
+            let meal = NSManagedObject(entity: entity, insertInto: managedContext)
+            meal.setValue(meal3.name, forKey: "dish")
+            meal.setValue(Meal.convertUIImageToPng(meal3.photo), forKey: "image")
+            meal.setValue(meal3.rating, forKey: "stars")
+            meals.append(meal)
+        }
+        else {
             fatalError("Unable to instantiate meal3.")
         }
         
-        meals += [meal1, meal2, meal3]  // or meals.append(contentsOf: [meal1, meal2, meal3])
-    }
-    
+        //meals += [meal1, meal2, meal3]  // or meals.append(contentsOf: [meal1, meal2, meal3])
+    }*/
 }

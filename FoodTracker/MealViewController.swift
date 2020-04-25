@@ -7,6 +7,7 @@
 //
 
 import UIKit
+
 import os.log
 
 class MealViewController: UIViewController, UITextFieldDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
@@ -29,6 +30,7 @@ class MealViewController: UIViewController, UITextFieldDelegate, UIImagePickerCo
      This value is either passed by `MealTableViewController` in `prepare(for:sender:)`
      or constructed as part of adding a new meal.
      */
+    //var meal: Meal?
     var meal: Meal?
 
     
@@ -42,9 +44,12 @@ class MealViewController: UIViewController, UITextFieldDelegate, UIImagePickerCo
         // Set up views if editing an existing Meal.
         if let meal = meal {
             navigationItem.title = meal.name
-            //nameTextField.text   = meal.name
+            //nameTextField.text = meal.name
             photoImageView.image = meal.photo
             ratingControl.rating = meal.rating
+            //navigationItem.title = meal.value(forKeyPath: "dish") as? String
+            //photoImageView.image = UIImage(data: meal.value(forKeyPath: "image") as! Data)
+            //ratingControl.rating = meal.value(forKeyPath: "stars") as! Int
         }
         
         // Enable the Save button only if the view (nav bar title) has a valid Meal name.
@@ -118,7 +123,6 @@ class MealViewController: UIViewController, UITextFieldDelegate, UIImagePickerCo
     }
     
     
-
     // MARK: Actions
     
     @IBAction func cancel(_ sender: UIBarButtonItem) {
