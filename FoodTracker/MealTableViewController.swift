@@ -17,6 +17,33 @@ class MealTableViewController: UITableViewController {
     
     var meals = [NSManagedObject]()
     
+    let appDelegate = UIApplication.shared.delegate as? AppDelegate
+    let managedContext: NSManagedObjectContext?
+    let entity: NSEntityDescription?
+    
+    init() {
+        self.managedContext = appDelegate?.persistentContainer.viewContext
+        self.entity = NSEntityDescription.entity(forEntityName: "FoodItem", in: managedContext!)
+        
+        super.init(style: UITableView.Style.plain)
+        NSObject.initialize()
+    }
+    required init?(coder aDecoder: NSCoder) {
+        self.managedContext = appDelegate?.persistentContainer.viewContext
+        self.entity = NSEntityDescription.entity(forEntityName: "FoodItem", in: managedContext!)
+        
+        super.init(coder: aDecoder)
+        NSObject.initialize()
+    }
+    
+    init(frame: CGRect) {
+        self.managedContext = appDelegate?.persistentContainer.viewContext
+        self.entity = NSEntityDescription.entity(forEntityName: "FoodItem", in: managedContext!)
+        
+        super.init(style: UITableView.Style.plain)
+        NSObject.initialize()
+    }
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -26,10 +53,6 @@ class MealTableViewController: UITableViewController {
         
         // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
         self.navigationItem.leftBarButtonItem = self.editButtonItem
-        
-        
-        
-        
         
         // Load sample data
         //loadSampleMeals()
@@ -41,17 +64,25 @@ class MealTableViewController: UITableViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+        /*guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
             return
         }
         
-        let managedContext = appDelegate.persistentContainer.viewContext
+        let managedContext = appDelegate.persistentContainer.viewContext */
+        
         let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "FoodItem")
         
-        do {
+        /*do {
             meals = try managedContext.fetch(fetchRequest)
         } catch let error as NSError {
             print("Could not fetch. \(error), \(error.userInfo)")
+        }*/
+        
+        do {
+            meals = try managedContext!.fetch(fetchRequest)
+        }
+        catch {
+            print("Could not fetch.")
         }
     }
     
@@ -105,12 +136,10 @@ class MealTableViewController: UITableViewController {
     // Override to support editing the table view.
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            meals.remove(at: indexPath.row)
+            // Delete from Core Data
+            managedContext?.delete(meals[indexPath.row])
             
-            // SAVE THE MEALS
-            //saveMeals()
-            //saveData(<#T##name: String##String#>, <#T##photo: UIImage##UIImage#>, <#T##rating: Int##Int#>)
-            // remove from saved data
+            meals.remove(at: indexPath.row)
             
             // Delete the row from the data source
             tableView.deleteRows(at: [indexPath], with: .fade)
@@ -193,6 +222,7 @@ class MealTableViewController: UITableViewController {
             // (Edit) Checks whether a row in the table view is selected (i.e. not the add button)
             if let selectedIndexPath = tableView.indexPathForSelectedRow {
                 // Update an existing meal.
+                //editData(meal.name, meal.photo!, meal.rating)
                 //meals[selectedIndexPath.row] = meal
                 tableView.reloadRows(at: [selectedIndexPath], with: .none)
             }
@@ -225,13 +255,13 @@ class MealTableViewController: UITableViewController {
         // could be done just once in your own init() or viewDidLoad() then reused later.
         // TODO
         // These should be declared above
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+        /*guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
             return
         }
         
         let managedContext = appDelegate.persistentContainer.viewContext
-        let entity = NSEntityDescription.entity(forEntityName: "FoodItem", in: managedContext)!
-        let meal = NSManagedObject(entity: entity, insertInto: managedContext)
+        let entity = NSEntityDescription.entity(forEntityName: "FoodItem", in: managedContext)!*/
+        let meal = NSManagedObject(entity: entity!, insertInto: managedContext)
         meals.append(meal)
         
         // 3
