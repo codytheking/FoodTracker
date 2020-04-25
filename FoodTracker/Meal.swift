@@ -23,19 +23,6 @@ class Meal: NSObject {
         static let photo = "photo"
         static let rating = "rating"
     }
-    
-    
-    //MARK: Archiving Paths
-     
-    // FOR SAVING THE MEALS
-    
-    // Will always be at least one URL in the array (so it's fine to force unwrap the Optional)
-    //static let DocumentsDirectory = FileManager().urls(for: .documentDirectory, in: .userDomainMask).first!
-    
-    // After determining the URL for the documents directory, you use this URL to create the URL for your apps data.
-    // Here, you create the file URL by appending meals to the end of the documents URL.
-    //static let ArchiveURL = DocumentsDirectory.appendingPathComponent("meals")
-
 
     //MARK: Initialization
      
@@ -50,13 +37,13 @@ class Meal: NSObject {
             return nil
         }
         
-        // FOR SAVING THE MEALS
         // Initialize stored properties.
         self.name = name
         self.photo = photo
         self.rating = rating
     }
     
+    // Return UIImage as a PNG
     static func convertUIImageToPng(_ image: UIImage?) -> Data? {
         return image?.pngData()
     }
