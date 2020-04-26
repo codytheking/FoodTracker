@@ -7,13 +7,17 @@
 //
 
 import UIKit
+
+import CoreData
 import os.log
 
 class MealTableViewController: UITableViewController {
     
     // MARK: Properties
     
-    var meals = [Meal]()
+    static var numMeals = 0
+    let appDelegate = UIApplication.shared.delegate as? AppDelegate
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -23,10 +27,28 @@ class MealTableViewController: UITableViewController {
         
         // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
         self.navigationItem.leftBarButtonItem = self.editButtonItem
-        
-        // Load sample data
-        loadSampleMeals()
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        let appDelegate = UIApplication.shared.delegate as? AppDelegate
+        let managedContext = appDelegate!.persistentContainer.viewContext
+        let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "FoodItem")
+        
+        do {
+            MealTableViewController.numMeals = try managedContext.fetch(fetchRequest).count
+        }
+        catch {
+            print("Could not fetch.")
+        }
+    }
+    
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        // Dispose of any resources that can be recreated.
+    }
+    
     
     // MARK: - Table view data source
     
@@ -37,7 +59,7 @@ class MealTableViewController: UITableViewController {
     
     // Tells the table view how many rows to display in a given section.
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return meals.count
+        return MealTableViewController.numMeals  // meals.count
     }
     
     // Configures and provides a cell to display for a given row.
@@ -48,13 +70,11 @@ class MealTableViewController: UITableViewController {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as? MealTableViewCell else {
             fatalError("The dequeued cell is not an instance of MealTableViewCell.")
         }
-        
-        // Fetches the appropriate meal for the data source layout.
-        let meal = meals[indexPath.row]
-        
-        cell.nameLabel.text = meal.name
-        cell.photoImageView.image = meal.photo
-        cell.ratingControl.rating = meal.rating
+
+        let meal = retrieveData(atRow: indexPath.row)
+        cell.nameLabel?.text = meal!.name
+        cell.photoImageView?.image = meal!.photo
+        cell.ratingControl?.rating = meal!.rating
         
         return cell
     }
@@ -68,10 +88,11 @@ class MealTableViewController: UITableViewController {
     // Override to support editing the table view.
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            meals.remove(at: indexPath.row)
-
-            // Delete the row from the data source
-            tableView.deleteRows(at: [indexPath], with: .fade)
+            // Delete from Core Data
+            deleteData(atRow: indexPath.row)
+            MealTableViewController.numMeals -= 1
+            tableView.reloadData()
+            
         }
         else if editingStyle == .insert {
             // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
@@ -130,9 +151,11 @@ class MealTableViewController: UITableViewController {
                 fatalError("The selected cell is not being displayed by the table")
             }
             
+            // Get Meal to display
             // Use section/row for table views, section/item for collection views, and direct subscripting for everything else.
-            let selectedMeal = meals[indexPath.row]
-            mealDetailViewController.meal = selectedMeal
+            if let selectedMeal = retrieveData(atRow: indexPath.row) {
+                mealDetailViewController.meal = Meal(selectedMeal.name, selectedMeal.photo, selectedMeal.rating, selectedMeal.id)
+            }
             
         // Bad :(
         default:
@@ -147,43 +170,146 @@ class MealTableViewController: UITableViewController {
     @IBAction func unwindToMealList(sender: UIStoryboardSegue) {
         if let sourceViewController = sender.source as? MealViewController, let meal = sourceViewController.meal {
             
-            // Checks whether a row in the table view is selected (i.e. not the add button)
+            // (Edit) Checks whether a row in the table view is selected (i.e. not the add button)
             if let selectedIndexPath = tableView.indexPathForSelectedRow {
                 // Update an existing meal.
-                meals[selectedIndexPath.row] = meal
+                updateData(meal, atRow: selectedIndexPath.row)
                 tableView.reloadRows(at: [selectedIndexPath], with: .none)
             }
-            // Add button was pressed
+            // (New) Add button was pressed
             else {
                 // Add a new meal.
-                let newIndexPath = IndexPath(row: meals.count, section: 0)
-                meals.append(meal)
+                let newIndexPath = IndexPath(row: MealTableViewController.numMeals, section: 0)
+                saveNewMeal(meal)
                 tableView.insertRows(at: [newIndexPath], with: .automatic)
             }
+            
+            tableView.reloadData()
         }
     }
     
     
     // MARK: Private Methods
     
-    private func loadSampleMeals() {
-        let photo1 = UIImage(named: "meal1")
-        let photo2 = UIImage(named: "meal2")
-        let photo3 = UIImage(named: "meal3")
+    private func saveNewMeal(_ meal: Meal) {
+        let managedContext = appDelegate!.persistentContainer.viewContext
+        let entity = NSEntityDescription.entity(forEntityName: "FoodItem", in: managedContext)!
         
-        guard let meal1 = Meal(name: "Chicken Chow Mein", photo: photo1, rating: 5) else {
-            fatalError("Unable to instantiate meal1.")
+        let mealManObj = NSManagedObject(entity: entity, insertInto: managedContext)
+        mealManObj.setValue(meal.name, forKeyPath: Meal.PropertyKey.name)
+        mealManObj.setValue(Meal.convertUIImageToPng(meal.photo), forKeyPath: Meal.PropertyKey.photo)
+        mealManObj.setValue(meal.rating, forKeyPath: Meal.PropertyKey.rating)
+        mealManObj.setValue(meal.id, forKey: Meal.PropertyKey.id)
+        
+        do {
+            try managedContext.save()
+        }
+        catch let error as NSError {
+            print("Could not save. \(error), \(error.userInfo)")
         }
         
-        guard let meal2 = Meal(name: "Rack of Lamb", photo: photo2, rating: 4) else {
-            fatalError("Unable to instantiate meal2.")
-        }
-        
-        guard let meal3 = Meal(name: "Shrimp Tempura Roll", photo: photo3, rating: 5) else {
-            fatalError("Unable to instantiate meal3.")
-        }
-        
-        meals += [meal1, meal2, meal3]  // or meals.append(contentsOf: [meal1, meal2, meal3])
+        MealTableViewController.numMeals += 1
     }
     
+    private func retrieveData(atRow index: Int) -> Meal? {
+        let managedContext = appDelegate!.persistentContainer.viewContext
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "FoodItem")
+        
+        // Put in order so that id of Meal matches index of array. Could maybe try to use a function to find our value in array.
+        fetchRequest.sortDescriptors = [NSSortDescriptor.init(key: Meal.PropertyKey.id, ascending: true)]
+    
+        do {
+            let result = try managedContext.fetch(fetchRequest)
+            let manObj = result[index] as! NSManagedObject
+            let name = manObj.value(forKey: Meal.PropertyKey.name) as! String
+            let photo = UIImage(data: manObj.value(forKey: Meal.PropertyKey.photo) as! Data)
+            let rating = manObj.value(forKey: Meal.PropertyKey.rating) as! Int
+            let id = manObj.value(forKey: Meal.PropertyKey.id) as! Int
+            return Meal(name, photo, rating, id)
+        }
+        catch {
+            print("Failed fetching objects.")
+        }
+        
+        return nil
+    }
+    
+    private func updateData(_ meal: Meal, atRow row: Int) {
+        let managedContext = appDelegate!.persistentContainer.viewContext
+        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest.init(entityName: "FoodItem")
+        
+        //fetchRequest.predicate = NSPredicate(format: <#T##String#>, <#T##args: CVarArg...##CVarArg#>)
+        
+        // Put in order so that id of Meal matches index of array. Could maybe try to use a function to find our value in array.
+        fetchRequest.sortDescriptors = [NSSortDescriptor.init(key: Meal.PropertyKey.id, ascending: true)]
+    
+        do {
+            let result = try managedContext.fetch(fetchRequest)
+            let manObj = result[row] as! NSManagedObject
+            manObj.setValue(meal.name, forKeyPath: Meal.PropertyKey.name)
+            manObj.setValue(Meal.convertUIImageToPng(meal.photo), forKeyPath: Meal.PropertyKey.photo)
+            manObj.setValue(meal.rating, forKeyPath: Meal.PropertyKey.rating)
+            do {
+                try managedContext.save()
+            }
+            catch {
+                print("Failed to save object.")
+            }
+        }
+        catch {
+            print("Failed fetch object.")
+        }
+    }
+    
+    private func deleteData(atRow row: Int) {
+        let managedContext = appDelegate!.persistentContainer.viewContext
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "FoodItem")
+        
+        //fetchRequest.predicate = NSPredicate(format: "id == %@", row)
+        
+        // Put in order so that id of Meal matches index of array. Could maybe try to use a function to find our value in array.
+        fetchRequest.sortDescriptors = [NSSortDescriptor.init(key: Meal.PropertyKey.id, ascending: true)]
+        
+        do {
+            let result = try managedContext.fetch(fetchRequest)
+            let manObj = result[row] as! NSManagedObject
+            managedContext.delete(manObj)
+            
+            do {
+                try managedContext.save()
+            }
+            catch {
+                print("Failed to delete object.")
+            }
+        }
+        catch {
+            print("Failed fetch object.")
+        }
+    }
+    
+    // batchDelete
+    // crashes if multiple objects have the same name
+    /*private func deleteData(atRow row: Int, _ meal: Meal) {
+        let managedContext = appDelegate!.persistentContainer.viewContext
+        let fetch = NSFetchRequest<NSFetchRequestResult>(entityName: "FoodItem")
+        fetch.predicate = NSPredicate(format: "name == %@", meal.name)
+        let request = NSBatchDeleteRequest(fetchRequest: fetch)
+        
+        do {
+            try managedContext.execute(request)
+        }
+        catch {
+            fatalError("Failed to execute request: \(error)")
+        }
+        
+        do {
+            let result = try managedContext.execute(request) as? NSBatchDeleteResult
+            let objectIDArray = result?.result as? [NSManagedObjectID]
+            let changes = [NSDeletedObjectsKey : objectIDArray]
+            //NSManagedObjectContext.mergeChanges(fromRemoteContextSave: changes, into: [managedContext])
+        }
+        catch {
+            fatalError("Failed to perform batch update: \(error)")
+        }
+    }*/
 }

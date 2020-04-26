@@ -7,19 +7,28 @@
 //
 
 import UIKit
+import os.log
 
-class Meal {
+class Meal: NSObject {
     
     // MARK: Properties
     
     var name: String
     var photo: UIImage?
     var rating: Int
+    let id: Int
     
-    
+    // FOR SAVING THE MEALS
+    struct PropertyKey {
+        static let name = "name"
+        static let photo = "photo"
+        static let rating = "rating"
+        static let id = "id"
+    }
+
     //MARK: Initialization
      
-    init?(name: String, photo: UIImage?, rating: Int) {
+    init?(_ name: String, _ photo: UIImage?, _ rating: Int, _ id: Int) {
         // The name must not be empty
         guard !name.isEmpty else {
             return nil
@@ -31,8 +40,15 @@ class Meal {
         }
         
         // Initialize stored properties.
+        
         self.name = name
         self.photo = photo
         self.rating = rating
+        self.id = id
+    }
+    
+    // Return UIImage as a PNG
+    static func convertUIImageToPng(_ image: UIImage?) -> Data? {
+        return image?.pngData()
     }
 }

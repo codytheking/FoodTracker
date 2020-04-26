@@ -7,6 +7,7 @@
 //
 
 import UIKit
+
 import os.log
 
 class MealViewController: UIViewController, UITextFieldDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
@@ -42,7 +43,6 @@ class MealViewController: UIViewController, UITextFieldDelegate, UIImagePickerCo
         // Set up views if editing an existing Meal.
         if let meal = meal {
             navigationItem.title = meal.name
-            //nameTextField.text   = meal.name
             photoImageView.image = meal.photo
             ratingControl.rating = meal.rating
         }
@@ -114,11 +114,10 @@ class MealViewController: UIViewController, UITextFieldDelegate, UIImagePickerCo
         let rating = ratingControl.rating
                 
         // Set the meal to be passed to MealTableViewController after the unwind segue.
-        meal = Meal(name: name, photo: photo, rating: rating)
+        meal = Meal(name, photo, rating, MealTableViewController.numMeals)
     }
     
     
-
     // MARK: Actions
     
     @IBAction func cancel(_ sender: UIBarButtonItem) {
@@ -167,7 +166,6 @@ class MealViewController: UIViewController, UITextFieldDelegate, UIImagePickerCo
 
     private func updateSaveButtonState() {
         // Disable the Save button if the Meal hasn't been given a name.
-        //let textField = nameTextField.text ?? ""
         if navigationItem.title == "New Meal" {
             saveButton.isEnabled = false
         }
