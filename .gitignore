@@ -3,7 +3,6 @@
 FoodTracker.xcodeproj/
 *.app
 *.xctest
-*.plist
 
 # Images and Media
 Assets.xcassets
